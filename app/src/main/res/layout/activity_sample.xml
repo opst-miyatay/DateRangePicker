@@ -1,10 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.savvi.rangepickersample.SampleActivity">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/get_selected_dates"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selected Dates"
+            tools:layout_editor_absoluteX="229dp"
+            tools:layout_editor_absoluteY="447dp" />
+        <Button
+            android:id="@+id/heijitu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="平日"
+            tools:layout_editor_absoluteX="229dp"
+            tools:layout_editor_absoluteY="447dp" />
+        <Button
+            android:id="@+id/shuku"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="土日祝"
+            tools:layout_editor_absoluteX="229dp"
+            tools:layout_editor_absoluteY="447dp" />
+        <Button
+            android:id="@+id/all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="すべて"
+            tools:layout_editor_absoluteX="229dp"
+            tools:layout_editor_absoluteY="447dp" />
+    </LinearLayout>
 
     <com.savvi.rangedatepicker.CalendarPickerView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -21,12 +57,6 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp" />
 
-    <Button
-        android:id="@+id/get_selected_dates"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Selected Dates"
-        tools:layout_editor_absoluteX="229dp"
-        tools:layout_editor_absoluteY="447dp" />
 
-</android.support.constraint.ConstraintLayout>
+
+</LinearLayout>

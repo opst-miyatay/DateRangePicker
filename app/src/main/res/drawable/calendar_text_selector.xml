@@ -8,5 +8,8 @@
   <item app:tsquare_state_highlighted="true" android:color="#fff" />
   <item app:tsquare_state_today="true" android:color="#fff"/>
   <item app:tsquare_state_selectable="false" android:color="#7ffefeff" />
+  <item app:tsquare_state_saturday="false" android:color="@android:color/holo_blue_dark" />
+  <item app:tsquare_state_sunday="false" android:color="@android:color/holo_red_dark" />
+  <item app:tsquare_state_holiday="false" android:color="@android:color/holo_orange_light" />
   <item android:color="#212121"/>
 </selector>

@@ -36,13 +36,24 @@ public class CalendarCellView extends FrameLayout {
   private static final int[] STATE_DEACTIVATED = {
           R.attr.tsquare_state_deactivated
   };
-
+    private static final int[] STATE_SATURDAY = {
+            R.attr.tsquare_state_saturday
+    };
+    private static final int[] STATE_SUNRDAY = {
+            R.attr.tsquare_state_sunday
+    };
+    private static final int[] STATE_HOLIDAY = {
+            R.attr.tsquare_state_holiday
+    };
   private boolean isSelectable = false;
   private boolean isCurrentMonth = false;
   private boolean isToday = false;
   private boolean isHighlighted = false;
   private boolean isAvailable = false;
   private boolean isDeactivated = false;
+  private boolean isHoliday = false;
+  private boolean isSaturday = false;
+  private boolean isSunday = false;
   private RangeState rangeState = RangeState.NONE;
   private TextView dayOfMonthTextView;
 
@@ -99,6 +110,24 @@ public class CalendarCellView extends FrameLayout {
       refreshDrawableState();
     }
   }
+  public void setHoliday(boolean isHoliday) {
+      if (this.isHoliday != isHoliday && !isDeactivated) {
+          this.isHoliday = isHoliday;
+          refreshDrawableState();
+      }
+  }
+  public void setSunday(boolean isSunday) {
+      if (this.isSunday != isSunday && !isDeactivated) {
+          this.isSunday = isSunday;
+          refreshDrawableState();
+      }
+  }
+    public void setSaturday(boolean isSaturday) {
+        if (this.isSaturday != isSaturday && !isDeactivated) {
+            this.isSaturday = isSaturday;
+            refreshDrawableState();
+        }
+    }
 
   public boolean isCurrentMonth() {
     return isCurrentMonth;
@@ -147,6 +176,16 @@ public class CalendarCellView extends FrameLayout {
     if(isDeactivated){
       mergeDrawableStates(drawableState, STATE_DEACTIVATED);
     }
+
+    if(isSunday) {
+        mergeDrawableStates(drawableState, STATE_SUNRDAY);
+    }
+      if(isSaturday) {
+          mergeDrawableStates(drawableState, STATE_SATURDAY);
+      }
+      if(isHoliday) {
+          mergeDrawableStates(drawableState, STATE_HOLIDAY);
+      }
 
     if (rangeState == RangeState.FIRST) {
       mergeDrawableStates(drawableState, STATE_RANGE_FIRST);
