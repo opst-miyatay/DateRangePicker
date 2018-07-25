@@ -74,6 +74,11 @@ public class MonthView extends LinearLayout {
             today.set(Calendar.DAY_OF_WEEK, getDayOfWeek(firstDayOfWeek, offset, view.isRtl));
             final TextView textView = (TextView) headerRow.getChildAt(offset);
             textView.setText(weekdayNameFormat.format(today.getTime()));
+            if (offset == 0) {
+                textView.setTextColor(textView.getContext().getResources().getColor(R.color.dateTimeRangePickerRangeTextColorSunday));
+            } else if (offset == 6) {
+                textView.setTextColor(textView.getContext().getResources().getColor(R.color.dateTimeRangePickerRangeTextColorSaturday));
+            }
         }
         today.set(Calendar.DAY_OF_WEEK, originalDayOfWeek);
         view.listener = listener;
