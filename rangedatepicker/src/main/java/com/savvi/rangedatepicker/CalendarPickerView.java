@@ -171,75 +171,6 @@ public class CalendarPickerView extends ListView {
      */
     @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     public FluentInitializer init(Date minDate, Date maxDate, TimeZone timeZone, Locale locale, DateFormat monthNameFormat) {
-//    if (minDate == null || maxDate == null) {
-//      throw new IllegalArgumentException(
-//          "minDate and maxDate must be non-null.  " + dbg(minDate, maxDate));
-//    }
-//    if (minDate.after(maxDate)) {
-//      throw new IllegalArgumentException(
-//          "minDate must be before maxDate.  " + dbg(minDate, maxDate));
-//    }
-//    if (locale == null) {
-//      throw new IllegalArgumentException("Locale is null.");
-//    }
-//    if (timeZone == null) {
-//      throw new IllegalArgumentException("Time zone is null.");
-//    }
-//
-//    // Make sure that all calendar instances use the same time zone and locale.
-//    this.timeZone = timeZone;
-//    this.locale = locale;
-//    today = Calendar.getInstance(timeZone, locale);
-//    minCal = Calendar.getInstance(timeZone, locale);
-//    maxCal = Calendar.getInstance(timeZone, locale);
-//    monthCounter = Calendar.getInstance(timeZone, locale);
-//    this.monthNameFormat = monthNameFormat;
-//    monthNameFormat.setTimeZone(timeZone);
-//    weekdayNameFormat =
-//        new SimpleDateFormat("E", locale);
-//    weekdayNameFormat.setTimeZone(timeZone);
-//    fullDateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
-//    fullDateFormat.setTimeZone(timeZone);
-//
-//    this.selectionMode = SelectionMode.SINGLE;
-//    // Clear out any previously-selected dates/cells.
-//    selectedCals.clear();
-//    selectedCells.clear();
-//    highlightedCals.clear();
-//    highlightedCells.clear();
-//
-//    // Clear previous state.
-//    cells.clear();
-//    months.clear();
-//    minCal.setTime(minDate);
-//    maxCal.setTime(maxDate);
-//    setMidnight(minCal);
-//    setMidnight(maxCal);
-//    displayOnly = false;
-//
-//    // maxDate is exclusive: bump back to the previous day so if maxDate is the first of a month,
-//    // we don't accidentally include that month in the view.
-//    maxCal.add(MINUTE, -1);
-//
-//    // Now iterate between minCal and maxCal and build up our list of months to show.
-//    monthCounter.setTime(minCal.getTime());
-//    final int maxMonth = maxCal.get(MONTH);
-//    final int maxYear = maxCal.get(YEAR);
-//    while ((monthCounter.get(MONTH) <= maxMonth // Up to, including the month.
-//        || monthCounter.get(YEAR) < maxYear) // Up to the year.
-//        && monthCounter.get(YEAR) < maxYear + 1) { // But not > next yr.
-//      Date date = monthCounter.getTime();
-//      MonthDescriptor month =
-//          new MonthDescriptor(monthCounter.get(MONTH), monthCounter.get(YEAR), date,
-//              monthNameFormat.format(date));
-//      cells.put(monthKey(month), getMonthCells(month, monthCounter));
-//      Logr.d("Adding month %s", month);
-//      months.add(month);
-//      monthCounter.add(MONTH, 1);
-//    }
-//
-//    validateAndUpdate();
-//    return new FluentInitializer();
         return init(minDate, maxDate, timeZone, locale, monthNameFormat, null, null);
     }
 
@@ -558,13 +489,9 @@ public class CalendarPickerView extends ListView {
 
     public List<Date> getSelectedDates() {
         List<Date> selectedDates = new ArrayList<>();
-//        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         for (MonthCellDescriptor cal : selectedCells) {
             if (!highlightedCells.contains(cal) && !cal.isDeactivated()) {
                 selectedDates.add(cal.getDate());
-//                Log.d("hoge", "selected:" + format.format(cal.getDate()));
-            } else {
-//                Log.d("hoge", "not selected:" + format.format(cal.getDate()));
             }
         }
         Collections.sort(selectedDates);
@@ -613,7 +540,7 @@ public class CalendarPickerView extends ListView {
                 return;
             }
             if (!betweenDates(clickedDate, minCal, maxCal) || !isDateSelectable(clickedDate)
-                    || ((activeMin !=null && activeMax != null)&& !betweenDates(clickedDate, activeMin, activeMax))) {
+                    || ((activeMin !=null && activeMax != null)&& !betweenActiveDates(clickedDate, activeMin, activeMax))) {
                 // 最小値、最大値の間でない、または選択可能な日でない
                 if (invalidDateListener != null) {
                     invalidDateListener.onInvalidDateSelected(clickedDate);//
@@ -668,7 +595,6 @@ public class CalendarPickerView extends ListView {
 
     // 日付選択処理
     private boolean doSelectDate(Date date, MonthCellDescriptor cell) {
-        // TODO 範囲選択済みなら範囲選択解除
         // 選択された日付
         Calendar newlySelectedCal = Calendar.getInstance(timeZone, locale);
         newlySelectedCal.setTime(date);
@@ -704,32 +630,6 @@ public class CalendarPickerView extends ListView {
         }
 
         if (date != null) {
-
-//            boolean first = false;
-//            boolean last = false;
-//            for (MonthCellDescriptor mcd: selectedCells) {
-//                if (mcd.getRangeState().equals(RangeState.FIRST)) {
-//                    first = true;
-//                    continue;
-//                }
-//                if (mcd.getRangeState().equals(RangeState.LAST)) {
-//                    last = true;
-//                    continue;
-//                }
-//            }
-            // 開始と終了が選択済みの場合、選択を一度クリアする
-//            if (first && last) {
-//                clearOldSelections();
-//                cell.setSelected(false);
-//                cell.setHighlighted(false);
-//                return false;
-//            }
-
-            Log.d("hoge", new SimpleDateFormat("MM-dd").format(cell.getDate())
-                    + " isSelectable=" + cell.isSelectable()
-                    + " isDeactivated=" + cell.isDeactivated()
-                    + " isUnavailable=" + cell.isUnavailable());
-            // Select a new cell. 新しく選択された場合
             if (selectedCells.size() == 0 || !selectedCells.get(0).equals(cell)) {
                 // 選択済みのセルがない OR 選択済みの日付と今回選択した日付が同じでない
                 selectedCells.add(cell);
@@ -999,10 +899,6 @@ public class CalendarPickerView extends ListView {
         Calendar minSelectedCal = minDate(selectedCals);
         Calendar maxSelectedCal = maxDate(selectedCals);
 
-        SimpleDateFormat f = new SimpleDateFormat("MM-dd");
-        if (activeMin!=null && activeMax != null) {
-            Log.d("isSelectable", f.format(activeMin.getTime()) + " to " + f.format(activeMax.getTime()));
-        }
         while ((cal.get(MONTH) < month.getMonth() + 1 || cal.get(YEAR) < month.getYear()) //
                 && cal.get(YEAR) <= month.getYear()) {
             Logr.d("Building week row starting at %s", cal.getTime());
@@ -1016,8 +912,6 @@ public class CalendarPickerView extends ListView {
                         isCurrentMonth && betweenDates(cal, minCal, maxCal) && isDateSelectable(date)
                                 && ((activeMin == null && activeMax == null) || betweenDates(cal, activeMin, activeMax));
 
-                Log.d("isSelectable",
-                        f.format(date) + " is " + isSelectable);
                 boolean isToday = sameDate(cal, today);
                 boolean isHighlighted = containsDate(highlightedCals, cal);
                 int value = cal.get(DAY_OF_MONTH);
@@ -1088,6 +982,12 @@ public class CalendarPickerView extends ListView {
         final Date min = minCal.getTime();
         return (date.equals(min) || date.after(min)) // >= minCal
                 && date.before(maxCal.getTime()); // && < maxCal
+    }
+    static boolean betweenActiveDates(Date date, Calendar minCal, Calendar maxCal) {
+        final Date min = minCal.getTime();
+        final Date max = maxCal.getTime();
+        return (date.equals(min) || date.after(min)) // >= minCal
+                && (date.equals(max) || date.before(maxCal.getTime())); // && <= maxCal
     }
 
     private static boolean sameMonth(Calendar cal, MonthDescriptor month) {

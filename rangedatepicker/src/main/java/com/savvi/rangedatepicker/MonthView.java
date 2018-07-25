@@ -69,6 +69,7 @@ public class MonthView extends LinearLayout {
         view.locale = locale;
         int firstDayOfWeek = today.getFirstDayOfWeek();
         final CalendarRowView headerRow = (CalendarRowView) view.grid.getChildAt(0);
+        headerRow.setBackground(headerRow.getContext().getDrawable(R.drawable.header_row_background));
         for (int offset = 0; offset < 7; offset++) {
             today.set(Calendar.DAY_OF_WEEK, getDayOfWeek(firstDayOfWeek, offset, view.isRtl));
             final TextView textView = (TextView) headerRow.getChildAt(offset);
@@ -134,6 +135,7 @@ public class MonthView extends LinearLayout {
                     MonthCellDescriptor cell = week.get(isRtl ? 6 - c : c);// TODO ここに日付の情報を持ってるぽいので、土日祝の設定をfor文以下で読み込む
                     CalendarCellView cellView = (CalendarCellView) weekRow.getChildAt(c);
 
+                    // 日付設定
                     String cellDate = numberFormatter.format(cell.getValue());
                     if (!cellView.getDayOfMonthTextView().getText().equals(cellDate)) {
                         cellView.getDayOfMonthTextView().setText(cellDate);

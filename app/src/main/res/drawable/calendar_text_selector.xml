@@ -2,14 +2,23 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+  <!--選択時-->
   <item android:state_selected="true" android:color="#fff"/>
+  <!--押下時-->
   <item android:state_pressed="true" android:color="#fff"/>
-  <item app:tsquare_state_current_month="false" android:color="#fff"/>
+  <!--当月でない日付-->
+  <item app:tsquare_state_current_month="false" android:color="#f0f"/>
+  <!--ハイライト-->
   <item app:tsquare_state_highlighted="true" android:color="#fff" />
-  <item app:tsquare_state_today="true" android:color="#fff"/>
+  <!--今日-->
+  <item app:tsquare_state_today="true" android:color="#0ff"/>
+  <!--選択不可-->
   <item app:tsquare_state_selectable="false" android:color="#7ffefeff" />
+  <!--土曜-->
   <item app:tsquare_state_saturday="false" android:color="@android:color/holo_blue_dark" />
+  <!--日曜-->
   <item app:tsquare_state_sunday="false" android:color="@android:color/holo_red_dark" />
+  <!--祝日-->
   <item app:tsquare_state_holiday="false" android:color="@android:color/holo_orange_light" />
   <item android:color="#212121"/>
 </selector>

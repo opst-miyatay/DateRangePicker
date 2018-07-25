@@ -44,6 +44,7 @@ public class SampleActivity extends AppCompatActivity {
         nextYear.add(Calendar.MONTH, 6);
 
         lastYear = Calendar.getInstance();
+//        lastYear.add(Calendar.MONTH, 1);
 
         calendar = (CalendarPickerView) findViewById(R.id.calendar_view);
         button = (Button) findViewById(R.id.get_selected_dates);
@@ -137,6 +138,9 @@ public class SampleActivity extends AppCompatActivity {
             holidayList.add(format.parse("2018/07/18"));
             holidayList.add(format.parse("2018/07/21"));
             holidayList.add(format.parse("2018/07/29"));
+            holidayList.add(format.parse("2018/08/01"));
+            holidayList.add(format.parse("2018/09/01"));
+            holidayList.add(format.parse("2018/09/02"));
 
         } catch (ParseException e) {
             throw new RuntimeException(e);
