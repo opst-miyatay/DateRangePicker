@@ -1,0 +1,8 @@
+<resources>
+    <dimen name="calendar_day_headers_paddingbottom">16dp</dimen>
+    <dimen name="calendar_month_topmargin">32dp</dimen>
+    <dimen name="calendar_month_title_bottommargin">16dp</dimen>
+    <dimen name="calendar_text_medium">22sp</dimen>
+    <dimen name="calendar_text_large">24sp</dimen>
+    <dimen name="calendar_text_small">16sp</dimen>
+</resources>
