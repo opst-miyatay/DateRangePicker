@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -138,4 +140,22 @@ public class CalendarRowView extends ViewGroup implements View.OnClickListener {
             }
         }
     }
+
+//    @Override
+//    public boolean dispatchTouchEvent(MotionEvent ev) {
+//        if (ev.getAction() == MotionEvent.ACTION_UP) {
+//            if (listener != null) listener.handleClick((MonthCellDescriptor) getTag());
+//        }
+//        return super.dispatchTouchEvent(ev);
+//    }
+//
+//    @Override
+//    public boolean dispatchKeyEvent(KeyEvent event) {
+//        if (event.getAction() == KeyEvent.ACTION_UP
+//                && (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_CENTER
+//                || event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+//            if (listener != null) listener.handleClick((MonthCellDescriptor) getTag());
+//        }
+//        return super.dispatchKeyEvent(event);
+//    }
 }

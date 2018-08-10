@@ -29,20 +29,21 @@ public class MonthView extends LinearLayout {
     private List<CalendarCellDecorator> decorators;
     private boolean isRtl;
     private Locale locale;
-    private List<Date> holidayList = new ArrayList<>();
+    private boolean isHolidaySelectable = true;
+    private List<Calendar> holidayList = new ArrayList<>();
 
     ArrayList<Integer> deactivatedDates;
 
     public static MonthView create(ViewGroup parent, LayoutInflater inflater,
                                    DateFormat weekdayNameFormat, Listener listener, Calendar today, int dividerColor,
                                    int dayBackgroundResId, int dayTextColorResId, int titleTextColor, boolean displayHeader,
-                                   int headerTextColor, Locale locale, DayViewAdapter adapter) {
+                                   int headerTextColor, Locale locale, DayViewAdapter adapter, boolean isHolidaySelectable) {
         return create(parent, inflater, weekdayNameFormat, listener, today, dividerColor,
                 dayBackgroundResId, dayTextColorResId, titleTextColor, displayHeader, headerTextColor, null,
-                locale, adapter);
+                locale, adapter, isHolidaySelectable);
     }
 
-    public void setHolidayList(List<Date> holidayList) {
+    public void setHolidayList(List<Calendar> holidayList) {
         this.holidayList.addAll(holidayList);
     }
 
@@ -50,7 +51,7 @@ public class MonthView extends LinearLayout {
                                    DateFormat weekdayNameFormat, Listener listener, Calendar today, int dividerColor,
                                    int dayBackgroundResId, int dayTextColorResId, int titleTextColor, boolean displayHeader,
                                    int headerTextColor, List<CalendarCellDecorator> decorators, Locale locale,
-                                   DayViewAdapter adapter) {
+                                   DayViewAdapter adapter, boolean isHolidaySelectable) {
         final MonthView view = (MonthView) inflater.inflate(R.layout.month, parent, false);
         view.setDayViewAdapter(adapter);
         view.setDividerColor(dividerColor);
@@ -58,6 +59,7 @@ public class MonthView extends LinearLayout {
         view.setTitleTextColor(titleTextColor);
         view.setDisplayHeader(displayHeader);
         view.setHeaderTextColor(headerTextColor);
+        view.isHolidaySelectable = isHolidaySelectable;
 
         if (dayBackgroundResId != 0) {
             view.setDayBackground(dayBackgroundResId);
@@ -122,8 +124,9 @@ public class MonthView extends LinearLayout {
 
     public void init(MonthDescriptor month, List<List<MonthCellDescriptor>> cells,
                      boolean displayOnly, Typeface titleTypeface, Typeface dateTypeface, List<Integer> deactivatedDates,
-                     Date activeMin, Date activeMax) {
+                     Date activeMin, Date activeMax, boolean isHolidaySelectable) {
         Logr.d("Initializing MonthView (%d) for %s", System.identityHashCode(this), month);
+        this.isHolidaySelectable = isHolidaySelectable;
         long start = System.currentTimeMillis();
         title.setText(month.getLabel());
         NumberFormat numberFormatter = NumberFormat.getInstance(locale);
@@ -153,10 +156,22 @@ public class MonthView extends LinearLayout {
                         cellView.setClickable(!displayOnly);
 
 
-                    if (deactivatedDates.contains(dayOfWeek)
-                            || (activeMin != null && cell.getDate().before(activeMin))
-                            || (activeMax != null && cell.getDate().after(activeMax))) {
-                        // 選択不可の曜日
+                    // 祝日かどうか
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(cell.getDate());
+                    boolean isHoliday = false;
+                    for (Calendar h: this.holidayList) {
+                        if (h.get(Calendar.YEAR) == cal.get(Calendar.YEAR)
+                                && h.get(Calendar.MONTH) == cal.get(Calendar.MONTH)
+                                && h.get(Calendar.DAY_OF_MONTH) == cal.get(Calendar.DAY_OF_MONTH)) {
+                            isHoliday = true;
+                            Log.d("***** holiday", new SimpleDateFormat("yyyy-MM-dd").format(h.getTime()));
+                            break;
+                        }
+
+                    }
+                    if (isDeactive(dayOfWeek, activeMin, activeMax, isHolidaySelectable, cell, isHoliday, deactivatedDates)) {
+                    // 選択不可の曜日
                         cellView.setSelectable(cell.isSelectable());
                         cellView.setSelected(false);
                         cellView.setCurrentMonth(cell.isCurrentMonth());
@@ -173,7 +188,6 @@ public class MonthView extends LinearLayout {
                         // 選択可能の曜日
 
                         // 祝日設定
-                        boolean isHoliday = this.holidayList.contains(cell.getDate());
                         cellView.setHoliday(isHoliday);
                         if (!isHoliday) {
                             // 土日設定
@@ -187,13 +201,20 @@ public class MonthView extends LinearLayout {
                                 default:
                                     break;
                             }
+                        } else {
+                            cellView.setSunday(false);
+                            cellView.setSaturday(false);
                         }
 
                         // 選択可の曜日
                         cellView.setSelectable(cell.isSelectable());
                         cellView.setSelected(cell.isSelected());
                         cellView.setCurrentMonth(cell.isCurrentMonth());
-                        cellView.setToday(cell.isToday());
+                        if (isHoliday) {
+                            cellView.setToday(false);
+                        } else {
+                            cellView.setToday(cell.isToday());
+                        }
                         cellView.setRangeState(cell.getRangeState());
                         cellView.setHighlighted(cell.isHighlighted());
                         cellView.setRangeUnavailable(cell.isUnavailable());
@@ -223,10 +244,37 @@ public class MonthView extends LinearLayout {
 
         Logr.d("MonthView.init took %d ms", System.currentTimeMillis() - start);
     }
+    private boolean isDeactive(int dayOfWeek,Date activeMin, Date activeMax
+            , boolean isHolidaySelectable, MonthCellDescriptor cell, boolean isHoliday,
+                               List<Integer> deactivatedDates) {
+        // アクティブな範囲外の場合
+        if ((activeMin != null && cell.getDate().before(activeMin))
+                || (activeMax != null && cell.getDate().after(activeMax))) {
+            return true;
+        }
+        // deactivatedDatesが設定されていない
+        if (deactivatedDates == null || deactivatedDates.size() <= 0) {
+            return false;
+        }
+
+        if (deactivatedDates.contains(1) || deactivatedDates.contains(7)) {
+            if (isHoliday) {
+                return !isHolidaySelectable;
+            } else {
+                return dayOfWeek == 1 || dayOfWeek == 7;
+            }
+        } else {
+            if (isHoliday) {
+                return !isHolidaySelectable;
+            } else {
+                return !(dayOfWeek == 1 || dayOfWeek == 7);
+            }
+        }
+    }
 
     public void init(MonthDescriptor month, List<List<MonthCellDescriptor>> cells,
-                     boolean displayOnly, Typeface titleTypeface, Typeface dateTypeface, List<Integer> deactivatedDates) {
-        init(month, cells, displayOnly, titleTypeface, dateTypeface, deactivatedDates, null, null);
+                     boolean displayOnly, Typeface titleTypeface, Typeface dateTypeface, List<Integer> deactivatedDates, boolean isHolidaySelectable) {
+        init(month, cells, displayOnly, titleTypeface, dateTypeface, deactivatedDates, null, null, isHolidaySelectable);
     }
 
     public void setDividerColor(int color) {

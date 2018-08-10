@@ -102,7 +102,8 @@ public class CalendarPickerView extends ListView {
     private DayViewAdapter dayViewAdapter = new DefaultDayViewAdapter();
 
     private boolean monthsReverseOrder;
-    private List<Date> holidayList = new ArrayList<>();
+    private List<Calendar> holidayList = new ArrayList<>();
+    private boolean isHolidaySelectable = true;
 
     public void setDecorators(List<CalendarCellDecorator> decorators) {
         this.decorators = decorators;
@@ -111,6 +112,9 @@ public class CalendarPickerView extends ListView {
         }
     }
 
+    public void setHolidaySelectable(boolean isHolidaySelectable) {
+        this.isHolidaySelectable = isHolidaySelectable;
+    }
     public List<CalendarCellDecorator> getDecorators() {
         return decorators;
     }
@@ -294,7 +298,7 @@ public class CalendarPickerView extends ListView {
             }
             if (selectedDates != null) {
                 for (Date date : selectedDates) {
-                    selectDate(date);
+                    selectDate(date, scroll);
                 }
             }
             // スクロールするかどうか
@@ -341,7 +345,7 @@ public class CalendarPickerView extends ListView {
             return this;
         }
 
-        public FluentInitializer setHoliday(List<Date> holidayList) {
+        public FluentInitializer setHoliday(List<Calendar> holidayList) {
             setHolidayList(holidayList);
             return this;
         }
@@ -531,7 +535,19 @@ public class CalendarPickerView extends ListView {
             calendar.setTime(clickedDate);
 
             int day = calendar.get(DAY_OF_WEEK);
-            if (deactivatedDates.contains(day)) {
+            Calendar c = Calendar.getInstance();
+            c.setTime(cell.getDate());
+            boolean isContains = false;
+            for (Calendar h : holidayList) {
+                if (h.get(Calendar.YEAR) == c.get(Calendar.YEAR)
+                        && h.get(Calendar.MONTH) == c.get(Calendar.MONTH)
+                        && h.get(Calendar.DAY_OF_MONTH) == c.get(Calendar.DAY_OF_MONTH)) {
+                    isContains = true;
+                    break;
+                }
+            }
+            if (deactivatedDates.contains(day)
+                    || deactivatedDates.contains(0) && isContains){
                 // 非アクティブ日付の場合何も処理しない
                 return;
             }
@@ -540,7 +556,7 @@ public class CalendarPickerView extends ListView {
                 return;
             }
             if (!betweenDates(clickedDate, minCal, maxCal) || !isDateSelectable(clickedDate)
-                    || ((activeMin !=null && activeMax != null)&& !betweenActiveDates(clickedDate, activeMin, activeMax))) {
+                    || ((activeMin != null && activeMax != null) && !betweenActiveDates(clickedDate, activeMin, activeMax))) {
                 // 最小値、最大値の間でない、または選択可能な日でない
                 if (invalidDateListener != null) {
                     invalidDateListener.onInvalidDateSelected(clickedDate);//
@@ -671,7 +687,8 @@ public class CalendarPickerView extends ListView {
                                     singleCell.setUnavailable(true);
                                     singleCell.setHighlighted(false);
                                     selectedCells.add(singleCell);
-                                } else if (!deactivatedDates.contains(singleCell.getDate().getDay() + 1)) {
+                                } else if ((!deactivatedDates.contains(singleCell.getDate().getDay() + 1))
+                                        || (!deactivatedDates.contains(0) || holidayList.contains(singleCell.getDate().getDay() + 1))) {
                                     singleCell.setSelected(true);
                                     singleCell.setRangeState(RangeState.MIDDLE);
                                     selectedCells.add(singleCell);
@@ -768,7 +785,7 @@ public class CalendarPickerView extends ListView {
         validateAndUpdate();
     }
 
-    public void setHolidayList(List<Date> holidayList) {
+    public void setHolidayList(List<Calendar> holidayList) {
         this.holidayList = holidayList;
         validateAndUpdate();
     }
@@ -864,7 +881,7 @@ public class CalendarPickerView extends ListView {
                 monthView =
                         MonthView.create(parent, inflater, weekdayNameFormat, listener, today, dividerColor,
                                 dayBackgroundResId, dayTextColorResId, titleTextColor, displayHeader,
-                                headerTextColor, decorators, locale, dayViewAdapter);
+                                headerTextColor, decorators, locale, dayViewAdapter, isHolidaySelectable);
                 monthView.setTag(R.id.day_view_adapter_class, dayViewAdapter.getClass());
             } else {
                 monthView.setDecorators(decorators);
@@ -875,10 +892,10 @@ public class CalendarPickerView extends ListView {
             monthView.setHolidayList(holidayList);
             if (activeMin != null && activeMax != null) {
                 monthView.init(months.get(position), cells.getValueAtIndex(position), displayOnly,
-                        titleTypeface, dateTypeface, deactivatedDates, activeMin.getTime(), activeMax.getTime());
+                        titleTypeface, dateTypeface, deactivatedDates, activeMin.getTime(), activeMax.getTime(), isHolidaySelectable);
             } else {
                 monthView.init(months.get(position), cells.getValueAtIndex(position), displayOnly,
-                        titleTypeface, dateTypeface, deactivatedDates);
+                        titleTypeface, dateTypeface, deactivatedDates, isHolidaySelectable);
             }
             return monthView;
         }
@@ -983,6 +1000,7 @@ public class CalendarPickerView extends ListView {
         return (date.equals(min) || date.after(min)) // >= minCal
                 && date.before(maxCal.getTime()); // && < maxCal
     }
+
     static boolean betweenActiveDates(Date date, Calendar minCal, Calendar maxCal) {
         final Date min = minCal.getTime();
         final Date max = maxCal.getTime();
@@ -1102,6 +1120,7 @@ public class CalendarPickerView extends ListView {
             this.activeMin.setTime(date);
         }
     }
+
     public void setActiveMax(Date date) {
         if (date == null) {
             this.activeMax = null;

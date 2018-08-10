@@ -9,6 +9,8 @@ public class DefaultDayViewAdapter implements DayViewAdapter {
       TextView textView = new TextView(
               new ContextThemeWrapper(parent.getContext(), R.style.CalendarCell_CalendarDate));
       textView.setDuplicateParentStateEnabled(true);
+      textView.setFocusable(false);
+      textView.setClickable(false);
       parent.addView(textView);
       parent.setDayOfMonthTextView(textView);
   }
