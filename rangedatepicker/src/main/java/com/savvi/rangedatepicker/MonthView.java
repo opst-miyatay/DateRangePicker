@@ -160,32 +160,42 @@ public class MonthView extends LinearLayout {
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(cell.getDate());
                     boolean isHoliday = false;
-                    for (Calendar h: this.holidayList) {
+                    for (Calendar h : this.holidayList) {
                         if (h.get(Calendar.YEAR) == cal.get(Calendar.YEAR)
                                 && h.get(Calendar.MONTH) == cal.get(Calendar.MONTH)
                                 && h.get(Calendar.DAY_OF_MONTH) == cal.get(Calendar.DAY_OF_MONTH)) {
+//                        if (h.compareTo(cal) == 0) {
                             isHoliday = true;
-                            Log.d("***** holiday", new SimpleDateFormat("yyyy-MM-dd").format(h.getTime()));
                             break;
                         }
 
                     }
-                    if (isDeactive(dayOfWeek, activeMin, activeMax, isHolidaySelectable, cell, isHoliday, deactivatedDates)) {
-                    // 選択不可の曜日
+
+                    Log.d("***** holidaytest", new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime()) + " isHoliday=" + isHoliday + " isSunday=" +cellView.isSunday() + " isSaturday=" + cellView.isSaturday() );
+
+
+                    if (isDeactive(dayOfWeek, activeMin, activeMax, isHolidaySelectable, cell.getDate(), isHoliday, deactivatedDates)) {
+                        // 選択不可の曜日
                         cellView.setSelectable(cell.isSelectable());
                         cellView.setSelected(false);
                         cellView.setCurrentMonth(cell.isCurrentMonth());
-                        cellView.setToday(cell.isToday());
+//                        cellView.setToday(cell.isToday());
                         cellView.setRangeState(RangeState.NONE);
                         cellView.setHighlighted(cell.isHighlighted());
                         cellView.setRangeUnavailable(cell.isUnavailable());
                         cellView.setDeactivated(true);
 
-//                        Log.d("fuga", new SimpleDateFormat("MM-dd").format(cell.getDate()) + " 選択不可の曜日");
-
-
                     } else {
-                        // 選択可能の曜日
+
+                        // 選択可の曜日
+                        cellView.setSelectable(cell.isSelectable());
+                        cellView.setSelected(cell.isSelected());
+                        cellView.setCurrentMonth(cell.isCurrentMonth());
+//                            cellView.setToday(cell.isToday());
+                        cellView.setRangeState(cell.getRangeState());
+                        cellView.setHighlighted(cell.isHighlighted());
+                        cellView.setRangeUnavailable(cell.isUnavailable());
+                        cellView.setDeactivated(false);
 
                         // 祝日設定
                         cellView.setHoliday(isHoliday);
@@ -206,19 +216,6 @@ public class MonthView extends LinearLayout {
                             cellView.setSaturday(false);
                         }
 
-                        // 選択可の曜日
-                        cellView.setSelectable(cell.isSelectable());
-                        cellView.setSelected(cell.isSelected());
-                        cellView.setCurrentMonth(cell.isCurrentMonth());
-                        if (isHoliday) {
-                            cellView.setToday(false);
-                        } else {
-                            cellView.setToday(cell.isToday());
-                        }
-                        cellView.setRangeState(cell.getRangeState());
-                        cellView.setHighlighted(cell.isHighlighted());
-                        cellView.setRangeUnavailable(cell.isUnavailable());
-                        cellView.setDeactivated(false);
                     }
 
 
@@ -244,32 +241,45 @@ public class MonthView extends LinearLayout {
 
         Logr.d("MonthView.init took %d ms", System.currentTimeMillis() - start);
     }
-    private boolean isDeactive(int dayOfWeek,Date activeMin, Date activeMax
-            , boolean isHolidaySelectable, MonthCellDescriptor cell, boolean isHoliday,
-                               List<Integer> deactivatedDates) {
-        // アクティブな範囲外の場合
-        if ((activeMin != null && cell.getDate().before(activeMin))
-                || (activeMax != null && cell.getDate().after(activeMax))) {
+
+    /**
+     * 非アクティブならtrue、アクティブならfalseを返します
+     * 非アクティブの条件は下記の通り
+     * <p>
+     * <ul>
+     * <li>1. activemin!=nullかつactiveminより過去</li>
+     * <li>2. activemax!=nullかつactivemaxより未来</li>
+     * <li>3. 1.2.以外でdeactivatedDatesが設定されていない</li>
+     * </ul>
+     *
+     * @param dayOfWeek
+     * @param activeMin
+     * @param activeMax
+     * @param isHolidaySelectable
+     * @param cellDate
+     * @param isHoliday
+     * @param deactivatedDates
+     * @return
+     */
+    static boolean isDeactive(int dayOfWeek, Date activeMin, Date activeMax
+            , boolean isHolidaySelectable, Date cellDate, boolean isHoliday,
+                              List<Integer> deactivatedDates) {
+        // アクティブな範囲外の場合は非アクティブ
+        if ((activeMin != null && cellDate.before(activeMin))
+                || (activeMax != null && cellDate.after(activeMax))) {
             return true;
         }
-        // deactivatedDatesが設定されていない
-        if (deactivatedDates == null || deactivatedDates.size() <= 0) {
-            return false;
-        }
 
-        if (deactivatedDates.contains(1) || deactivatedDates.contains(7)) {
-            if (isHoliday) {
-                return !isHolidaySelectable;
-            } else {
-                return dayOfWeek == 1 || dayOfWeek == 7;
-            }
-        } else {
-            if (isHoliday) {
-                return !isHolidaySelectable;
-            } else {
-                return !(dayOfWeek == 1 || dayOfWeek == 7);
-            }
+        // 祝日の場合は曜日に関係なくisHolidaySelectableで判定
+        if (isHoliday) {
+            return !isHolidaySelectable;
         }
+        // deactivatedDatesが設定されているなら曜日と照らし合わせる
+        if (deactivatedDates != null) {
+            return deactivatedDates.contains(dayOfWeek);
+        }
+        // それ以外はアクティブ
+        return false;
     }
 
     public void init(MonthDescriptor month, List<List<MonthCellDescriptor>> cells,

@@ -124,12 +124,18 @@ public class CalendarCellView extends FrameLayout {
             refreshDrawableState();
         }
     }
+    public boolean isSunday() {
+        return isSunday;
+    }
 
     public void setSaturday(boolean isSaturday) {
         if (this.isSaturday != isSaturday && !isDeactivated) {
             this.isSaturday = isSaturday;
             refreshDrawableState();
         }
+    }
+    public boolean isSaturday() {
+        return isSaturday;
     }
 
     public boolean isCurrentMonth() {
