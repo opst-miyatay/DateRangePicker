@@ -83,7 +83,7 @@ public class CalendarRowView extends ViewGroup implements View.OnClickListener {
         // Header rows don't have a click listener
 //    for (MonthView.Listener listener :listenerList) {
         if (listener!=null) {
-            listener.handleClick((MonthCellDescriptor) v.getTag());
+            listener.handleClick((MonthCellDescriptor) v.getTag(), v);
         }
 //    }
     }
