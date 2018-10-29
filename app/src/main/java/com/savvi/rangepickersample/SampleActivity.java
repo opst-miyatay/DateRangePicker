@@ -130,17 +130,22 @@ public class SampleActivity extends AppCompatActivity {
 
     boolean selected;
 
+    private Calendar getCal(Date date) {
+        Calendar cal  = Calendar.getInstance();
+        cal.setTime(date);
+        return  cal;
+    }
     private void init(Calendar last, Calendar next, final List<Date> selectedDates, final List<Integer> deactivedates, boolean scroll) {
         // 祝日
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
-        List<Date> holidayList = new ArrayList<>();
+        List<Calendar> holidayList = new ArrayList<>();
         try {
-            holidayList.add(format.parse("2018/07/18"));
-            holidayList.add(format.parse("2018/07/21"));
-            holidayList.add(format.parse("2018/07/29"));
-            holidayList.add(format.parse("2018/08/01"));
-            holidayList.add(format.parse("2018/09/01"));
-            holidayList.add(format.parse("2018/09/02"));
+            holidayList.add(getCal(format.parse("2018/07/18")));
+            holidayList.add(getCal(format.parse("2018/07/21")));
+            holidayList.add(getCal(format.parse("2018/07/29")));
+            holidayList.add(getCal(format.parse("2018/08/01")));
+            holidayList.add(getCal(format.parse("2018/09/01")));
+            holidayList.add(getCal(format.parse("2018/09/02")));
 
         } catch (ParseException e) {
             throw new RuntimeException(e);
@@ -157,7 +162,7 @@ public class SampleActivity extends AppCompatActivity {
         // 日付選択時の処理
         calendar.setOnDateSelectedListener(new CalendarPickerView.OnDateSelectedListener() {
             @Override
-            public void onDateSelected(MonthCellDescriptor cell) {
+            public void onDateSelected(MonthCellDescriptor cell, View view) {
                 switch (cell.getRangeState()) {
                     case FIRST:
                     case LAST:
